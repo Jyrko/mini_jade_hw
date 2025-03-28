@@ -44,7 +44,7 @@ public class JADEEngine {
     public static void runAgent(final ContainerController mainContainer, final String agentName,
                                 final String className, final String packageName) {
         try {
-            final String path = format("org.labs.%s.agents.%s", packageName, className);
+            final String path = format("org.example.%s.agents.%s", packageName, className);
             final AgentController agent = mainContainer.createNewAgent(agentName, path, new Object[] {});
             agent.start();
         } catch (final StaleProxyException e) {
@@ -55,7 +55,7 @@ public class JADEEngine {
     public static void runAgent(final ContainerController mainContainer, final String agentName,
                                 final String className, final String packageName, final Object[] args) {
         try {
-            final String path = format("org.labs.%s.agents.%s", packageName, className);
+            final String path = format("org.example.%s.agents.%s", packageName, className);
             final AgentController agent = mainContainer.createNewAgent(agentName, path, args);
             agent.start();
         } catch (final StaleProxyException e) {
