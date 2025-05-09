@@ -7,8 +7,15 @@ import jade.proto.ContractNetResponder;
 
 public class MarketResponderBehaviour extends ContractNetResponder {
     Agent agent;
+    Double multiplier;
+
     public MarketResponderBehaviour(Agent a, MessageTemplate mt) {
+        this(a, mt, 10.0);
+    }
+
+    public MarketResponderBehaviour(Agent a, MessageTemplate mt, Double multiplier) {
         super(a, mt);
+        this.multiplier = multiplier;
         this.agent = a;
     }
 
@@ -28,6 +35,6 @@ public class MarketResponderBehaviour extends ContractNetResponder {
     private double calculatePrice(String order) {
         // For demonstration, suppose each item costs 10.0zl.
         String[] items = order.split(",");
-        return items.length * 10.0;
+        return items.length * multiplier;
     }
 }

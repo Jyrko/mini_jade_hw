@@ -14,7 +14,7 @@ import java.util.Vector;
 
 public class ClientAgent extends Agent {
     protected void setup() {
-//        FIXME: Make it as arguments
+//      FIXME: Make it as arguments
         String order = "milk,coffee,rice";
 
         DFAgentDescription template = new DFAgentDescription();
@@ -32,6 +32,7 @@ public class ClientAgent extends Agent {
             cfp.setReplyByDate(new Date(System.currentTimeMillis() + 10000));
 
             addBehaviour(new ClientNegotiatorBehaviour(this, cfp));
+            System.out.println(getLocalName() + " registered as Client-Service");
         } catch (FIPAException fe) {
             fe.printStackTrace();
         }

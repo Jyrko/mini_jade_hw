@@ -10,6 +10,7 @@ import jade.lang.acl.MessageTemplate;
 import org.example.hw.behaviours.MarketResponderBehaviour;
 
 public class MarketAgent extends Agent {
+
     protected void setup() {
         // Registration with the DF as Market-Service (see Task 1)
         DFAgentDescription dfd = new DFAgentDescription();

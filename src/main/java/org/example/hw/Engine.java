@@ -27,9 +27,11 @@ public class Engine {
             final Object[] agentArgs = {"arg"};
 
             runGUI(container);
-            runAgent(container, "ClientAgent", "ClientAgent", "hw");
+            runAgent(container, "MarketAgent1", "MarketAgent", "hw");
+            runAgent(container, "MarketAgent2", "MarketAgent", "hw");
+            runAgent(container, "MarketAgent3", "MarketAgent", "hw");
             runAgent(container, "DeliveryAgent", "DeliveryAgent", "hw");
-            runAgent(container, "MarketAgent", "MarketAgent", "hw");
+            runAgent(container, "ClientAgent", "ClientAgent", "hw");
         } catch (final InterruptedException | ExecutionException e) {
             throw new JadePlatformInitializationException(e);
         }
