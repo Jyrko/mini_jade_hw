@@ -24,9 +24,12 @@ public class Engine {
 
         try {
             final ContainerController container = jadeExecutor.submit(() -> runtime.createMainContainer(profile)).get();
+            final Object[] agentArgs = {"arg"};
 
             runGUI(container);
-            runAgent(container, "Agent1", "FirstAgent", "laboratory1");
+            runAgent(container, "ClientAgent", "ClientAgent", "hw");
+            runAgent(container, "DeliveryAgent", "DeliveryAgent", "hw");
+            runAgent(container, "MarketAgent", "MarketAgent", "hw");
         } catch (final InterruptedException | ExecutionException e) {
             throw new JadePlatformInitializationException(e);
         }
