@@ -41,6 +41,7 @@ public class ClientNegotiatorBehaviour extends ContractNetInitiator {
         double bestPrice = Double.MAX_VALUE;
         for (Object obj : responses) {
             ACLMessage response = (ACLMessage) obj;
+            System.out.println("Content for the response from " + response.getSender().getLocalName() + " Content: " + response.getContent());
             if (response.getPerformative() == ACLMessage.PROPOSE) {
                 double price = Double.parseDouble(response.getContent());
                 if (price < bestPrice) {
@@ -57,6 +58,7 @@ public class ClientNegotiatorBehaviour extends ContractNetInitiator {
                 reply.setPerformative(ACLMessage.ACCEPT_PROPOSAL);
 
                 reply.setContent("Payment: " + bestPrice);
+                System.out.println("ClientAgent paid to " + response.getSender().getLocalName() + " Amount: " + response.getContent());
             } else {
                 reply.setPerformative(ACLMessage.REJECT_PROPOSAL);
             }

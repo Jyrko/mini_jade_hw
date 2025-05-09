@@ -18,6 +18,7 @@ public class DeliveryAgent extends Agent {
         sd.setType("Delivery-Service");
         sd.setName(getLocalName() + "-delivery");
         dfd.addServices(sd);
+
         try {
             DFService.register(this, dfd);
             System.out.println(getLocalName() + " registered as Delivery-Service.");
