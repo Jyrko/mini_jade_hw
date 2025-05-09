@@ -24,13 +24,21 @@ public class Engine {
 
         try {
             final ContainerController container = jadeExecutor.submit(() -> runtime.createMainContainer(profile)).get();
-            final Object[] agentArgs = {"arg"};
 
             runGUI(container);
-            runAgent(container, "MarketAgent1", "MarketAgent", "hw", new Object[] { 11.0 });
-            runAgent(container, "MarketAgent2", "MarketAgent", "hw", new Object[] { 20.0 });
-            runAgent(container, "MarketAgent3", "MarketAgent", "hw", new Object[] { 30.0 });
-            runAgent(container, "DeliveryAgent", "DeliveryAgent", "hw");
+
+            runAgent(container, "BoltDelivery", "DeliveryAgent", "hw", new Object[] { "Bolt", 11.2 });
+            runAgent(container, "BoltMarket1", "MarketAgent", "hw", new Object[] { 11.0, "Bolt" });
+            runAgent(container, "BoltMarket2", "MarketAgent", "hw", new Object[] { 15.0, "Bolt" });
+
+            runAgent(container, "UberDelivery", "DeliveryAgent", "hw", new Object[] { "Uber", 1.5 });
+            runAgent(container, "UberMarket1", "MarketAgent", "hw", new Object[] { 18.0, "Uber" });
+            runAgent(container, "UberMarket2", "MarketAgent", "hw", new Object[] { 22.0, "Uber" });
+
+            runAgent(container, "GlovoDelivery", "DeliveryAgent", "hw", new Object[] { "Glovo", 1.3 });
+            runAgent(container, "GlovoMarket1", "MarketAgent", "hw", new Object[] { 14.0, "Glovo" });
+            runAgent(container, "GlovoMarket2", "MarketAgent", "hw", new Object[] { 19.0, "Glovo" });
+
             runAgent(container, "ClientAgent", "ClientAgent", "hw");
         } catch (final InterruptedException | ExecutionException e) {
             throw new JadePlatformInitializationException(e);
