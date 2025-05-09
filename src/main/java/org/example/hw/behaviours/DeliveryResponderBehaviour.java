@@ -4,19 +4,23 @@ import jade.core.Agent;
 import jade.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
+import jade.domain.FIPAAgentManagement.Property;
 import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jade.proto.ContractNetResponder;
+import org.example.hw.agents.DeliveryAgent;
 
 import java.util.Date;
 
 public class DeliveryResponderBehaviour extends ContractNetResponder {
-    Agent agent;
+    private Agent agent;
+    
     public DeliveryResponderBehaviour(Agent agent, MessageTemplate mt) {
         super(agent, mt);
         this.agent = agent;
     }
+    
     protected ACLMessage handleCfp(ACLMessage cfp) {
         String order = cfp.getContent();
         System.out.println(agent.getLocalName()
@@ -24,6 +28,12 @@ public class DeliveryResponderBehaviour extends ContractNetResponder {
         double finalPrice = getPriceFromMarkets(order);
         ACLMessage reply = cfp.createReply();
         if (finalPrice >= 0) {
+            // Apply the delivery service's fee multiplier if available
+            if (agent instanceof DeliveryAgent) {
+                DeliveryAgent deliveryAgent = (DeliveryAgent) agent;
+                finalPrice *= deliveryAgent.getDeliveryFeeMultiplier();
+            }
+            
             reply.setPerformative(ACLMessage.PROPOSE);
             reply.setContent(String.valueOf(finalPrice));
         } else {
@@ -43,19 +53,37 @@ public class DeliveryResponderBehaviour extends ContractNetResponder {
         inform.setContent("Order completed successfully");
         return inform;
     }
+    
     private double getPriceFromMarkets(String order) {
         double bestPrice = Double.MAX_VALUE;
         try {
+            String deliveryServiceId = null;
+            if (agent instanceof DeliveryAgent) {
+                deliveryServiceId = ((DeliveryAgent) agent).getDeliveryServiceId();
+            }
 
             DFAgentDescription template = new DFAgentDescription();
             ServiceDescription sd = new ServiceDescription();
             sd.setType("Market-Service");
+
+            if (deliveryServiceId != null) {
+                Property prop = new Property("deliveryService", deliveryServiceId);
+                sd.addProperties(prop);
+            }
+            
             template.addServices(sd);
             DFAgentDescription[] results = DFService.search(agent, template);
+            
+            if (results.length == 0) {
+                System.out.println(agent.getLocalName() + ": No markets found for delivery service: " + 
+                    (deliveryServiceId != null ? deliveryServiceId : "unknown"));
+                return -1;
+            }
 
             ACLMessage cfp = new ACLMessage(ACLMessage.CFP);
             for (DFAgentDescription dfd : results) {
                 cfp.addReceiver(dfd.getName());
+                System.out.println(agent.getLocalName() + " sending request to market: " + dfd.getName().getLocalName());
             }
             cfp.setContent(order);
             cfp.setConversationId("market-quote");
@@ -73,6 +101,8 @@ public class DeliveryResponderBehaviour extends ContractNetResponder {
                     double price = Double.parseDouble(reply.getContent());
                     if (price < bestPrice) {
                         bestPrice = price;
+                        System.out.println(agent.getLocalName() + " received quote from " + 
+                            reply.getSender().getLocalName() + ": " + price);
                     }
                 }
             }
