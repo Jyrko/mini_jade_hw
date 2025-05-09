@@ -12,7 +12,14 @@ import org.example.hw.behaviours.MarketResponderBehaviour;
 public class MarketAgent extends Agent {
 
     protected void setup() {
-        // Registration with the DF as Market-Service (see Task 1)
+        // Registration with the DF as Market-Service (Task 1)
+        Object[] args = getArguments();
+        Double multiplier = 10.0;
+
+        if (args != null && args.length > 0 && args[0] instanceof Double) {
+            multiplier = (Double) args[0];
+        }
+
         DFAgentDescription dfd = new DFAgentDescription();
         dfd.setName(getAID());
         ServiceDescription sd = new ServiceDescription();
@@ -27,6 +34,6 @@ public class MarketAgent extends Agent {
         }
 
         MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.CFP);
-        addBehaviour(new MarketResponderBehaviour(this, mt));
+        addBehaviour(new MarketResponderBehaviour(this, mt, multiplier));
     }
 }

@@ -27,9 +27,9 @@ public class Engine {
             final Object[] agentArgs = {"arg"};
 
             runGUI(container);
-            runAgent(container, "MarketAgent1", "MarketAgent", "hw");
-            runAgent(container, "MarketAgent2", "MarketAgent", "hw");
-            runAgent(container, "MarketAgent3", "MarketAgent", "hw");
+            runAgent(container, "MarketAgent1", "MarketAgent", "hw", new Object[] { 11.0 });
+            runAgent(container, "MarketAgent2", "MarketAgent", "hw", new Object[] { 20.0 });
+            runAgent(container, "MarketAgent3", "MarketAgent", "hw", new Object[] { 30.0 });
             runAgent(container, "DeliveryAgent", "DeliveryAgent", "hw");
             runAgent(container, "ClientAgent", "ClientAgent", "hw");
         } catch (final InterruptedException | ExecutionException e) {

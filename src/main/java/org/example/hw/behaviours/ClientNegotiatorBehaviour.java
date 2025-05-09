@@ -58,6 +58,7 @@ public class ClientNegotiatorBehaviour extends ContractNetInitiator {
                 reply.setPerformative(ACLMessage.ACCEPT_PROPOSAL);
 
                 reply.setContent("Payment: " + bestPrice);
+                System.out.println("ClientAgent paid to " + response.getSender().getLocalName() + " Amount: " + response.getContent());
             } else {
                 reply.setPerformative(ACLMessage.REJECT_PROPOSAL);
             }

@@ -35,6 +35,8 @@ public class MarketResponderBehaviour extends ContractNetResponder {
     private double calculatePrice(String order) {
         // For demonstration, suppose each item costs 10.0zl.
         String[] items = order.split(",");
-        return items.length * multiplier;
+        final double result = items.length * multiplier;
+        System.out.println(this.agent.getLocalName() + " calculated order. Result: " + result);
+        return result;
     }
 }

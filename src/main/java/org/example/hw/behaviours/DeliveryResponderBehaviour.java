@@ -20,7 +20,7 @@ public class DeliveryResponderBehaviour extends ContractNetResponder {
     protected ACLMessage handleCfp(ACLMessage cfp) {
         String order = cfp.getContent();
         System.out.println(agent.getLocalName()
-                + " received order: " + order + " from " + cfp.getSender());
+                + " received order: " + order + " from " + cfp.getSender().getLocalName());
         double finalPrice = getPriceFromMarkets(order);
         ACLMessage reply = cfp.createReply();
         if (finalPrice >= 0) {
