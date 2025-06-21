@@ -66,9 +66,7 @@ public class DeliveryResponderBehaviour extends ContractNetResponder {
             ServiceDescription sd = new ServiceDescription();
             sd.setType("Market-Service");
             
-            // Only look for markets associated with this delivery service
             if (deliveryServiceId != null) {
-                // Create property to filter markets by delivery service
                 Property prop = new Property("deliveryService", deliveryServiceId);
                 sd.addProperties(prop);
             }

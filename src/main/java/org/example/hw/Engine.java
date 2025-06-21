@@ -38,7 +38,6 @@ public class Engine {
             
             Map<String, Double> boltMarket2Inventory = new HashMap<>();
             boltMarket2Inventory.put("coffee", 25.0);
-            boltMarket2Inventory.put("rice", 3.0);
 
             runAgent(container, "BoltDelivery", "DeliveryAgent", "hw", new Object[] { "Bolt" });
             runAgent(container, "BoltMarket1", "MarketAgent", "hw", new Object[] { boltMarket1Inventory, "Bolt" });
@@ -46,9 +45,8 @@ public class Engine {
 
             // Uber delivery service markets
             Map<String, Double> uberMarket1Inventory = new HashMap<>();
-            uberMarket1Inventory.put("milk", 4.0);
-            uberMarket1Inventory.put("rice", 4.0);
-            
+            uberMarket1Inventory.put("milk", 40.0);
+            uberMarket1Inventory.put("coffee", 40.0);
             Map<String, Double> uberMarket2Inventory = new HashMap<>();
             uberMarket2Inventory.put("coffee", 28.0);
             uberMarket2Inventory.put("rice", 2.0);
@@ -63,7 +61,6 @@ public class Engine {
             glovoMarket1Inventory.put("coffee", 32.0);
             
             Map<String, Double> glovoMarket2Inventory = new HashMap<>();
-            glovoMarket2Inventory.put("rice", 5.0);
             glovoMarket2Inventory.put("milk", 3.0);
 
             runAgent(container, "GlovoDelivery", "DeliveryAgent", "hw", new Object[] { "Glovo" });

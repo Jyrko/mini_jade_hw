@@ -14,26 +14,13 @@ import java.util.Vector;
 
 public class ClientAgent extends Agent {
     protected void setup() {
-        // Get order from arguments - can be either String[] or String
         String[] orderItems = {"milk", "coffee", "rice"}; // Default fallback
         Object[] args = getArguments();
         
         if (args != null && args.length > 0) {
-            if (args[0] instanceof String[]) {
-                // Array of products
-                orderItems = (String[]) args[0];
-            } else if (args[0] instanceof String) {
-                // Backward compatibility: single string with comma separation
-                String orderString = (String) args[0];
-                orderItems = orderString.split(",");
-                // Trim whitespace from each item
-                for (int i = 0; i < orderItems.length; i++) {
-                    orderItems[i] = orderItems[i].trim();
-                }
-            }
+            orderItems = (String[]) args[0];
         }
         
-        // Convert array back to string for message content (maintaining protocol compatibility)
         String order = String.join(",", orderItems);
         
         System.out.println(getLocalName() + " ordering products: " + java.util.Arrays.toString(orderItems));

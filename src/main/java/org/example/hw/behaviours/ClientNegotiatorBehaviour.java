@@ -8,8 +8,6 @@ import jade.domain.FIPAException;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAAgentManagement.Property;
-import jade.lang.acl.MessageTemplate;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
