@@ -10,21 +10,33 @@ import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import org.example.hw.behaviours.MarketResponderBehaviour;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class MarketAgent extends Agent {
     private String deliveryServiceId;
+    private Map<String, Double> inventory;
 
     protected void setup() {
+        // Get arguments: inventory and deliveryServiceId
         Object[] args = getArguments();
-        Double multiplier = 10.0;
         deliveryServiceId = "General";
 
         if (args != null) {
-            if (args.length > 0 && args[0] instanceof Double) {
-                multiplier = (Double) args[0];
+            if (args.length > 0 && args[0] instanceof Map) {
+                inventory = (Map<String, Double>) args[0];
             }
             if (args.length > 1 && args[1] instanceof String) {
                 deliveryServiceId = (String) args[1];
             }
+        }
+
+        // Fallback
+        if (inventory == null) {
+            inventory = new HashMap<>();
+            inventory.put("milk", 5.0);
+            inventory.put("coffee", 30.0);
+            inventory.put("rice", 4.0);
         }
 
         DFAgentDescription dfd = new DFAgentDescription();
@@ -32,7 +44,7 @@ public class MarketAgent extends Agent {
         ServiceDescription sd = new ServiceDescription();
         sd.setType("Market-Service");
         sd.setName(getLocalName() + "-market");
-
+        
         Property prop = new Property("deliveryService", deliveryServiceId);
         sd.addProperties(prop);
         
@@ -40,16 +52,28 @@ public class MarketAgent extends Agent {
 
         try {
             DFService.register(this, dfd);
-            System.out.println(getLocalName() + " registered as Market-Service for delivery service: " + deliveryServiceId);
+            System.out.println(getLocalName() + " registered as Market-Service for delivery service: " + 
+                deliveryServiceId + " with inventory: " + inventory);
         } catch (FIPAException fe) {
             fe.printStackTrace();
         }
 
-        MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.CFP);
-        addBehaviour(new MarketResponderBehaviour(this, mt, multiplier));
+        MessageTemplate mt = MessageTemplate.or(
+            MessageTemplate.MatchPerformative(ACLMessage.CFP),
+            MessageTemplate.and(
+                MessageTemplate.MatchPerformative(ACLMessage.REQUEST),
+                MessageTemplate.MatchConversationId("market-query")
+            )
+        );
+
+        addBehaviour(new MarketResponderBehaviour(this, mt));
     }
 
     public String getDeliveryServiceId() {
         return deliveryServiceId;
+    }
+    
+    public Map<String, Double> getInventory() {
+        return inventory;
     }
 }
