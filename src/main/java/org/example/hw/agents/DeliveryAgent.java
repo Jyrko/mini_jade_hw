@@ -12,16 +12,12 @@ import org.example.hw.behaviours.DeliveryResponderBehaviour;
 
 public class DeliveryAgent extends Agent {
     private String deliveryServiceId;
-    private double deliveryFeeMultiplier = 1.0;
     
     protected void setup() {
         Object[] args = getArguments();
         if (args != null) {
             if (args.length > 0 && args[0] instanceof String) {
                 deliveryServiceId = (String) args[0];
-            }
-            if (args.length > 1 && args[1] instanceof Double) {
-                deliveryFeeMultiplier = (Double) args[1];
             }
         } else {
             deliveryServiceId = getLocalName();
@@ -35,9 +31,6 @@ public class DeliveryAgent extends Agent {
 
         Property serviceProp = new Property("serviceId", deliveryServiceId);
         sd.addProperties(serviceProp);
-        
-        Property feeProp = new Property("feeMultiplier", String.valueOf(deliveryFeeMultiplier));
-        sd.addProperties(feeProp);
         
         dfd.addServices(sd);
 
@@ -53,9 +46,5 @@ public class DeliveryAgent extends Agent {
     
     public String getDeliveryServiceId() {
         return deliveryServiceId;
-    }
-    
-    public double getDeliveryFeeMultiplier() {
-        return deliveryFeeMultiplier;
     }
 }

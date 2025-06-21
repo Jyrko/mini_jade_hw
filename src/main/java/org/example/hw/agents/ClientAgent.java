@@ -14,8 +14,16 @@ import java.util.Vector;
 
 public class ClientAgent extends Agent {
     protected void setup() {
-//      FIXME: Make it as arguments
-        String order = "milk,coffee,rice";
+        String[] orderItems = {"milk", "coffee", "rice"}; // Default fallback
+        Object[] args = getArguments();
+        
+        if (args != null && args.length > 0) {
+            orderItems = (String[]) args[0];
+        }
+        
+        String order = String.join(",", orderItems);
+        
+        System.out.println(getLocalName() + " ordering products: " + java.util.Arrays.toString(orderItems));
 
         DFAgentDescription template = new DFAgentDescription();
         ServiceDescription sd = new ServiceDescription();

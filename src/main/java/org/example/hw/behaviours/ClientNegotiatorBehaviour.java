@@ -8,8 +8,6 @@ import jade.domain.FIPAException;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAAgentManagement.Property;
-import jade.lang.acl.MessageTemplate;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
@@ -34,21 +32,18 @@ public class ClientNegotiatorBehaviour extends ContractNetInitiator {
                 ServiceDescription sd = (ServiceDescription) result[0].getAllServices().next();
 
                 String serviceId = null;
-                String feeMultiplier = null;
                 
                 Iterator it = sd.getAllProperties();
                 while (it.hasNext()) {
                     Property prop = (Property) it.next();
                     if (prop.getName().equals("serviceId")) {
                         serviceId = (String) prop.getValue();
-                    } else if (prop.getName().equals("feeMultiplier")) {
-                        feeMultiplier = (String) prop.getValue();
                     }
                 }
                 
                 if (serviceId != null) {
                     deliveryServiceDetails.put(propose.getSender().getLocalName(), 
-                        "Service: " + serviceId + (feeMultiplier != null ? ", Fee Multiplier: " + feeMultiplier : ""));
+                        "Service: " + serviceId);
                 }
             }
         } catch (FIPAException fe) {

@@ -4,18 +4,15 @@ import jade.core.Agent;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jade.proto.ContractNetResponder;
+import org.example.hw.agents.MarketAgent;
+
+import java.util.Map;
 
 public class MarketResponderBehaviour extends ContractNetResponder {
     Agent agent;
-    Double multiplier;
 
     public MarketResponderBehaviour(Agent a, MessageTemplate mt) {
-        this(a, mt, 10.0);
-    }
-
-    public MarketResponderBehaviour(Agent a, MessageTemplate mt, Double multiplier) {
         super(a, mt);
-        this.multiplier = multiplier;
         this.agent = a;
     }
 
@@ -23,20 +20,45 @@ public class MarketResponderBehaviour extends ContractNetResponder {
         String order = cfp.getContent();
         System.out.println(agent.getLocalName()
                 + " received market quote request for order: " + order);
-        double totalPrice = calculatePrice(order);
-        ACLMessage reply = cfp.createReply();
-        reply.setPerformative(ACLMessage.PROPOSE);
-        reply.setContent(String.valueOf(totalPrice));
-        return reply;
+
+        if (cfp.getPerformative() == ACLMessage.REQUEST &&
+                cfp.getConversationId() != null && cfp.getConversationId().equals("market-query")) {
+            return handleMarketQuery(cfp);
+        }
+
+        System.out.println(agent.getLocalName() + ": Unexpected message format, ignoring");
+        return null;
     }
 
-    // A simple price calculation method.
-    // In a full implementation, this would consider available items and their individual pricing.
-    private double calculatePrice(String order) {
-        // For demonstration, suppose each item costs 10.0zl.
-        String[] items = order.split(",");
-        final double result = items.length * multiplier;
-        System.out.println(this.agent.getLocalName() + " calculated order. Result: " + result);
-        return result;
+    private ACLMessage handleMarketQuery(ACLMessage request) {
+        String content = request.getContent();
+        String[] requestedItems = content.split(",");
+        StringBuilder responseContent = new StringBuilder();
+
+        Map<String, Double> inventory = null;
+        if (agent instanceof MarketAgent) {
+            inventory = ((MarketAgent) agent).getInventory();
+        }
+
+        if (inventory != null) {
+            for (String item : requestedItems) {
+                item = item.trim().toLowerCase();
+                if (inventory.containsKey(item)) {
+                    responseContent.append(item)
+                            .append(":")
+                            .append(inventory.get(item))
+                            .append(",");
+                }
+            }
+            if (responseContent.length() > 0) {
+                responseContent.setLength(responseContent.length() - 1);
+            }
+        }
+
+        ACLMessage reply = request.createReply();
+        reply.setPerformative(ACLMessage.INFORM);
+        reply.setContent(responseContent.toString());
+        System.out.println(agent.getLocalName() + ": Replied with inventory info: " + reply.getContent());
+        return reply;
     }
 }
