@@ -58,10 +58,11 @@ public class Engine {
             // Glovo delivery service markets
             Map<String, Double> glovoMarket1Inventory = new HashMap<>();
             glovoMarket1Inventory.put("milk", 6.0);
-            glovoMarket1Inventory.put("coffee", 32.0);
+            glovoMarket1Inventory.put("coffee", 3.0);
             
             Map<String, Double> glovoMarket2Inventory = new HashMap<>();
             glovoMarket2Inventory.put("milk", 3.0);
+            glovoMarket2Inventory.put("rice", 2.0);
 
             runAgent(container, "GlovoDelivery", "DeliveryAgent", "hw", new Object[] { "Glovo" });
             runAgent(container, "GlovoMarket1", "MarketAgent", "hw", new Object[] { glovoMarket1Inventory, "Glovo" });
