@@ -48,7 +48,7 @@ public class ClientNegotiatorBehaviour extends ContractNetInitiator {
                 
                 if (serviceId != null) {
                     deliveryServiceDetails.put(propose.getSender().getLocalName(), 
-                        "Service: " + serviceId + (feeMultiplier != null ? ", Fee Multiplier: " + feeMultiplier : ""));
+                        "Service: " + serviceId);
                 }
             }
         } catch (FIPAException fe) {

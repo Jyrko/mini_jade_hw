@@ -40,7 +40,7 @@ public class Engine {
             boltMarket2Inventory.put("coffee", 25.0);
             boltMarket2Inventory.put("rice", 3.0);
 
-            runAgent(container, "BoltDelivery", "DeliveryAgent", "hw", new Object[] { "Bolt", 1.2 });
+            runAgent(container, "BoltDelivery", "DeliveryAgent", "hw", new Object[] { "Bolt" });
             runAgent(container, "BoltMarket1", "MarketAgent", "hw", new Object[] { boltMarket1Inventory, "Bolt" });
             runAgent(container, "BoltMarket2", "MarketAgent", "hw", new Object[] { boltMarket2Inventory, "Bolt" });
 
@@ -53,7 +53,7 @@ public class Engine {
             uberMarket2Inventory.put("coffee", 28.0);
             uberMarket2Inventory.put("rice", 2.0);
 
-            runAgent(container, "UberDelivery", "DeliveryAgent", "hw", new Object[] { "Uber", 1.5 });
+            runAgent(container, "UberDelivery", "DeliveryAgent", "hw", new Object[] { "Uber" });
             runAgent(container, "UberMarket1", "MarketAgent", "hw", new Object[] { uberMarket1Inventory, "Uber" });
             runAgent(container, "UberMarket2", "MarketAgent", "hw", new Object[] { uberMarket2Inventory, "Uber" });
 
@@ -66,11 +66,12 @@ public class Engine {
             glovoMarket2Inventory.put("rice", 5.0);
             glovoMarket2Inventory.put("milk", 3.0);
 
-            runAgent(container, "GlovoDelivery", "DeliveryAgent", "hw", new Object[] { "Glovo", 1.3 });
+            runAgent(container, "GlovoDelivery", "DeliveryAgent", "hw", new Object[] { "Glovo" });
             runAgent(container, "GlovoMarket1", "MarketAgent", "hw", new Object[] { glovoMarket1Inventory, "Glovo" });
             runAgent(container, "GlovoMarket2", "MarketAgent", "hw", new Object[] { glovoMarket2Inventory, "Glovo" });
 
-            runAgent(container, "ClientAgent", "ClientAgent", "hw");
+            String[] clientOrder = { "milk", "coffee", "rice" };
+            runAgent(container, "ClientAgent", "ClientAgent", "hw", new Object[] { clientOrder });
         } catch (final InterruptedException | ExecutionException e) {
             throw new JadePlatformInitializationException(e);
         }

@@ -20,9 +20,6 @@ public class DeliveryAgent extends Agent {
             if (args.length > 0 && args[0] instanceof String) {
                 deliveryServiceId = (String) args[0];
             }
-            if (args.length > 1 && args[1] instanceof Double) {
-                deliveryFeeMultiplier = (Double) args[1];
-            }
         } else {
             deliveryServiceId = getLocalName();
         }
