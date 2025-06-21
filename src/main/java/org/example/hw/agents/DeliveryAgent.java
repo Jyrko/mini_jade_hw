@@ -12,7 +12,6 @@ import org.example.hw.behaviours.DeliveryResponderBehaviour;
 
 public class DeliveryAgent extends Agent {
     private String deliveryServiceId;
-    private double deliveryFeeMultiplier = 1.0;
     
     protected void setup() {
         Object[] args = getArguments();
@@ -33,9 +32,6 @@ public class DeliveryAgent extends Agent {
         Property serviceProp = new Property("serviceId", deliveryServiceId);
         sd.addProperties(serviceProp);
         
-        Property feeProp = new Property("feeMultiplier", String.valueOf(deliveryFeeMultiplier));
-        sd.addProperties(feeProp);
-        
         dfd.addServices(sd);
 
         try {
@@ -50,9 +46,5 @@ public class DeliveryAgent extends Agent {
     
     public String getDeliveryServiceId() {
         return deliveryServiceId;
-    }
-    
-    public double getDeliveryFeeMultiplier() {
-        return deliveryFeeMultiplier;
     }
 }

@@ -12,6 +12,7 @@ import jade.proto.ContractNetResponder;
 import org.example.hw.agents.DeliveryAgent;
 
 import java.util.*;
+import java.util.Date;
 
 public class DeliveryResponderBehaviour extends ContractNetResponder {
     private Agent agent;
@@ -28,11 +29,6 @@ public class DeliveryResponderBehaviour extends ContractNetResponder {
         double finalPrice = getPriceFromMarkets(order);
         ACLMessage reply = cfp.createReply();
         if (finalPrice >= 0) {
-            if (agent instanceof DeliveryAgent) {
-                DeliveryAgent deliveryAgent = (DeliveryAgent) agent;
-                finalPrice *= deliveryAgent.getDeliveryFeeMultiplier();
-            }
-            
             reply.setPerformative(ACLMessage.PROPOSE);
             reply.setContent(String.valueOf(finalPrice));
         } else {

@@ -32,15 +32,12 @@ public class ClientNegotiatorBehaviour extends ContractNetInitiator {
                 ServiceDescription sd = (ServiceDescription) result[0].getAllServices().next();
 
                 String serviceId = null;
-                String feeMultiplier = null;
                 
                 Iterator it = sd.getAllProperties();
                 while (it.hasNext()) {
                     Property prop = (Property) it.next();
                     if (prop.getName().equals("serviceId")) {
                         serviceId = (String) prop.getValue();
-                    } else if (prop.getName().equals("feeMultiplier")) {
-                        feeMultiplier = (String) prop.getValue();
                     }
                 }
                 
