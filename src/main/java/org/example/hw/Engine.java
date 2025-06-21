@@ -29,9 +29,6 @@ public class Engine {
 
             runGUI(container);
             
-            // Create specific inventories for each market
-            
-            // Bolt delivery service markets
             Map<String, Double> boltMarket1Inventory = new HashMap<>();
             boltMarket1Inventory.put("milk", 5.0);
             boltMarket1Inventory.put("coffee", 30.0);
@@ -43,7 +40,6 @@ public class Engine {
             runAgent(container, "BoltMarket1", "MarketAgent", "hw", new Object[] { boltMarket1Inventory, "Bolt" });
             runAgent(container, "BoltMarket2", "MarketAgent", "hw", new Object[] { boltMarket2Inventory, "Bolt" });
 
-            // Uber delivery service markets
             Map<String, Double> uberMarket1Inventory = new HashMap<>();
             uberMarket1Inventory.put("milk", 40.0);
             uberMarket1Inventory.put("coffee", 40.0);
@@ -55,7 +51,6 @@ public class Engine {
             runAgent(container, "UberMarket1", "MarketAgent", "hw", new Object[] { uberMarket1Inventory, "Uber" });
             runAgent(container, "UberMarket2", "MarketAgent", "hw", new Object[] { uberMarket2Inventory, "Uber" });
 
-            // Glovo delivery service markets
             Map<String, Double> glovoMarket1Inventory = new HashMap<>();
             glovoMarket1Inventory.put("milk", 6.0);
             glovoMarket1Inventory.put("coffee", 3.0);

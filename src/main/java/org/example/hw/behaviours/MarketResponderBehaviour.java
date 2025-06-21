@@ -21,26 +21,13 @@ public class MarketResponderBehaviour extends ContractNetResponder {
         System.out.println(agent.getLocalName()
                 + " received market quote request for order: " + order);
 
-        // Handle both old CFP format and new REQUEST format
-        if (cfp.getConversationId() != null && cfp.getConversationId().equals("market-quote")) {
-            // Original CFP format - return total price
-            double totalPrice = calculatePrice(order);
-            ACLMessage reply = cfp.createReply();
-            reply.setPerformative(ACLMessage.PROPOSE);
-            reply.setContent(String.valueOf(totalPrice));
-            return reply;
-        } else if (cfp.getPerformative() == ACLMessage.REQUEST &&
+        if (cfp.getPerformative() == ACLMessage.REQUEST &&
                 cfp.getConversationId() != null && cfp.getConversationId().equals("market-query")) {
-            // New REQUEST format - return item:price inventory
             return handleMarketQuery(cfp);
         }
 
-        // Default behavior
-        double totalPrice = calculatePrice(order);
-        ACLMessage reply = cfp.createReply();
-        reply.setPerformative(ACLMessage.PROPOSE);
-        reply.setContent(String.valueOf(totalPrice));
-        return reply;
+        System.out.println(agent.getLocalName() + ": Unexpected message format, ignoring");
+        return null;
     }
 
     private ACLMessage handleMarketQuery(ACLMessage request) {
@@ -48,7 +35,6 @@ public class MarketResponderBehaviour extends ContractNetResponder {
         String[] requestedItems = content.split(",");
         StringBuilder responseContent = new StringBuilder();
 
-        // Get inventory from MarketAgent
         Map<String, Double> inventory = null;
         if (agent instanceof MarketAgent) {
             inventory = ((MarketAgent) agent).getInventory();
@@ -74,32 +60,5 @@ public class MarketResponderBehaviour extends ContractNetResponder {
         reply.setContent(responseContent.toString());
         System.out.println(agent.getLocalName() + ": Replied with inventory info: " + reply.getContent());
         return reply;
-    }
-
-    // Simple price calculation for backward compatibility - uses inventory if available
-    private double calculatePrice(String order) {
-        Map<String, Double> inventory = null;
-        if (agent instanceof MarketAgent) {
-            inventory = ((MarketAgent) agent).getInventory();
-        }
-
-        if (inventory != null) {
-            String[] items = order.split(",");
-            double total = 0.0;
-            for (String item : items) {
-                item = item.trim().toLowerCase();
-                if (inventory.containsKey(item)) {
-                    total += inventory.get(item);
-                }
-            }
-            System.out.println(this.agent.getLocalName() + " calculated order from inventory. Result: " + total);
-            return total;
-        } else {
-            // Fallback to simple calculation
-            String[] items = order.split(",");
-            final double result = items.length * 10.0; // Default price
-            System.out.println(this.agent.getLocalName() + " calculated order with default pricing. Result: " + result);
-            return result;
-        }
     }
 }

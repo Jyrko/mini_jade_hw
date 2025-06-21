@@ -31,7 +31,7 @@ public class MarketAgent extends Agent {
             }
         }
 
-        // Fallback inventory if none provided
+        // Fallback
         if (inventory == null) {
             inventory = new HashMap<>();
             inventory.put("milk", 5.0);
@@ -39,14 +39,12 @@ public class MarketAgent extends Agent {
             inventory.put("rice", 4.0);
         }
 
-        // Registration with the DF as Market-Service
         DFAgentDescription dfd = new DFAgentDescription();
         dfd.setName(getAID());
         ServiceDescription sd = new ServiceDescription();
         sd.setType("Market-Service");
         sd.setName(getLocalName() + "-market");
         
-        // Add the delivery service as a property
         Property prop = new Property("deliveryService", deliveryServiceId);
         sd.addProperties(prop);
         
@@ -67,7 +65,7 @@ public class MarketAgent extends Agent {
                 MessageTemplate.MatchConversationId("market-query")
             )
         );
-        // No more multiplier - behavior relies solely on inventory prices
+
         addBehaviour(new MarketResponderBehaviour(this, mt));
     }
 

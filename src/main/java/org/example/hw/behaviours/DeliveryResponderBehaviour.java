@@ -28,7 +28,6 @@ public class DeliveryResponderBehaviour extends ContractNetResponder {
         double finalPrice = getPriceFromMarkets(order);
         ACLMessage reply = cfp.createReply();
         if (finalPrice >= 0) {
-            // Apply the delivery service's fee multiplier if available
             if (agent instanceof DeliveryAgent) {
                 DeliveryAgent deliveryAgent = (DeliveryAgent) agent;
                 finalPrice *= deliveryAgent.getDeliveryFeeMultiplier();
@@ -56,7 +55,6 @@ public class DeliveryResponderBehaviour extends ContractNetResponder {
     
     private double getPriceFromMarkets(String order) {
         try {
-            // Get this delivery agent's service ID
             String deliveryServiceId = null;
             if (agent instanceof DeliveryAgent) {
                 deliveryServiceId = ((DeliveryAgent) agent).getDeliveryServiceId();
@@ -80,7 +78,6 @@ public class DeliveryResponderBehaviour extends ContractNetResponder {
                 return -1;
             }
 
-            // Send market query to get inventory information
             ACLMessage req = new ACLMessage(ACLMessage.REQUEST);
             for (DFAgentDescription dfd : results) {
                 req.addReceiver(dfd.getName());
@@ -91,7 +88,7 @@ public class DeliveryResponderBehaviour extends ContractNetResponder {
             req.setReplyByDate(new Date(System.currentTimeMillis() + 5000));
             agent.send(req);
 
-            // Collect market responses
+
             List<ACLMessage> responses = new ArrayList<>();
             MessageTemplate mt = MessageTemplate.and(
                     MessageTemplate.MatchConversationId("market-query"),
@@ -111,7 +108,6 @@ public class DeliveryResponderBehaviour extends ContractNetResponder {
                 }
             }
 
-            // Compute iterative aggregated cost
             return computeIterativeAggregatedCost(order, responses);
             
         } catch (FIPAException fe) {
@@ -121,12 +117,11 @@ public class DeliveryResponderBehaviour extends ContractNetResponder {
     }
     
     private double computeIterativeAggregatedCost(String order, List<ACLMessage> responses) {
-        // Build market offers from responses
         List<Map<String, Double>> marketOffers = new ArrayList<>();
         for (ACLMessage msg : responses) {
             if (msg.getPerformative() == ACLMessage.INFORM) {
                 Map<String, Double> offer = new HashMap<>();
-                String content = msg.getContent(); // e.g., "milk:6.0,coffee:28.0" or "rice:4.0"
+                String content = msg.getContent();
                 if (!content.isEmpty()) {
                     String[] pairs = content.split(",");
                     for (String pair : pairs) {
@@ -142,7 +137,6 @@ public class DeliveryResponderBehaviour extends ContractNetResponder {
             }
         }
 
-        // Remaining items
         List<String> remainingItems = new ArrayList<>();
         String[] requestedItems = order.split(",");
         for (String item : requestedItems) {
@@ -150,13 +144,12 @@ public class DeliveryResponderBehaviour extends ContractNetResponder {
         }
         double total = 0.0;
 
-        // Iterative selection algorithm from solution-main
+        // Updated product selection algo
         while (!remainingItems.isEmpty()) {
             int bestCount = 0;
             double bestPrice = Double.MAX_VALUE;
             Map<String, Double> bestOffer = null;
 
-            // Evaluate each market offer
             for (Map<String, Double> offer : marketOffers) {
                 List<String> available = new ArrayList<>();
                 double priceSum = 0.0;
@@ -167,7 +160,6 @@ public class DeliveryResponderBehaviour extends ContractNetResponder {
                     }
                 }
                 int count = available.size();
-                // Choose the offer that supplies the most items; tie-break by lower total price
                 if (count > bestCount || (count == bestCount && count > 0 && priceSum < bestPrice)) {
                     bestCount = count;
                     bestPrice = priceSum;
@@ -184,7 +176,6 @@ public class DeliveryResponderBehaviour extends ContractNetResponder {
             System.out.println(agent.getLocalName() + ": Selected market offer covering " + bestCount
                     + " items at cost " + bestPrice);
 
-            // Remove items provided by the selected offer
             Iterator<String> iter = remainingItems.iterator();
             while (iter.hasNext()) {
                 String item = iter.next();
