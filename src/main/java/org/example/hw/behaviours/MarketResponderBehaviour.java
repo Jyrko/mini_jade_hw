@@ -10,15 +10,9 @@ import java.util.Map;
 
 public class MarketResponderBehaviour extends ContractNetResponder {
     Agent agent;
-    Double multiplier;
 
     public MarketResponderBehaviour(Agent a, MessageTemplate mt) {
-        this(a, mt, 10.0);
-    }
-
-    public MarketResponderBehaviour(Agent a, MessageTemplate mt, Double multiplier) {
         super(a, mt);
-        this.multiplier = multiplier;
         this.agent = a;
     }
 
@@ -54,7 +48,7 @@ public class MarketResponderBehaviour extends ContractNetResponder {
         String[] requestedItems = content.split(",");
         StringBuilder responseContent = new StringBuilder();
 
-        // Get inventory from MarketAgent if available
+        // Get inventory from MarketAgent
         Map<String, Double> inventory = null;
         if (agent instanceof MarketAgent) {
             inventory = ((MarketAgent) agent).getInventory();
@@ -73,19 +67,6 @@ public class MarketResponderBehaviour extends ContractNetResponder {
             if (responseContent.length() > 0) {
                 responseContent.setLength(responseContent.length() - 1);
             }
-        } else {
-            // Fallback to old calculation method
-            for (String item : requestedItems) {
-                item = item.trim().toLowerCase();
-                double price = multiplier; // Simple price calculation
-                responseContent.append(item)
-                        .append(":")
-                        .append(price)
-                        .append(",");
-            }
-            if (responseContent.length() > 0) {
-                responseContent.setLength(responseContent.length() - 1);
-            }
         }
 
         ACLMessage reply = request.createReply();
@@ -95,11 +76,30 @@ public class MarketResponderBehaviour extends ContractNetResponder {
         return reply;
     }
 
-    // A simple price calculation method for backward compatibility
+    // Simple price calculation for backward compatibility - uses inventory if available
     private double calculatePrice(String order) {
-        String[] items = order.split(",");
-        final double result = items.length * multiplier;
-        System.out.println(this.agent.getLocalName() + " calculated order. Result: " + result);
-        return result;
+        Map<String, Double> inventory = null;
+        if (agent instanceof MarketAgent) {
+            inventory = ((MarketAgent) agent).getInventory();
+        }
+
+        if (inventory != null) {
+            String[] items = order.split(",");
+            double total = 0.0;
+            for (String item : items) {
+                item = item.trim().toLowerCase();
+                if (inventory.containsKey(item)) {
+                    total += inventory.get(item);
+                }
+            }
+            System.out.println(this.agent.getLocalName() + " calculated order from inventory. Result: " + total);
+            return total;
+        } else {
+            // Fallback to simple calculation
+            String[] items = order.split(",");
+            final double result = items.length * 10.0; // Default price
+            System.out.println(this.agent.getLocalName() + " calculated order with default pricing. Result: " + result);
+            return result;
+        }
     }
 }
