@@ -11,7 +11,7 @@ import jade.lang.acl.MessageTemplate;
 import jade.proto.ContractNetResponder;
 import org.example.hw.agents.DeliveryAgent;
 
-import java.util.Date;
+import java.util.*;
 
 public class DeliveryResponderBehaviour extends ContractNetResponder {
     private Agent agent;
@@ -55,8 +55,8 @@ public class DeliveryResponderBehaviour extends ContractNetResponder {
     }
     
     private double getPriceFromMarkets(String order) {
-        double bestPrice = Double.MAX_VALUE;
         try {
+            // Get this delivery agent's service ID
             String deliveryServiceId = null;
             if (agent instanceof DeliveryAgent) {
                 deliveryServiceId = ((DeliveryAgent) agent).getDeliveryServiceId();
@@ -65,8 +65,10 @@ public class DeliveryResponderBehaviour extends ContractNetResponder {
             DFAgentDescription template = new DFAgentDescription();
             ServiceDescription sd = new ServiceDescription();
             sd.setType("Market-Service");
-
+            
+            // Only look for markets associated with this delivery service
             if (deliveryServiceId != null) {
+                // Create property to filter markets by delivery service
                 Property prop = new Property("deliveryService", deliveryServiceId);
                 sd.addProperties(prop);
             }
@@ -80,35 +82,119 @@ public class DeliveryResponderBehaviour extends ContractNetResponder {
                 return -1;
             }
 
-            ACLMessage cfp = new ACLMessage(ACLMessage.CFP);
+            // Send market query to get inventory information
+            ACLMessage req = new ACLMessage(ACLMessage.REQUEST);
             for (DFAgentDescription dfd : results) {
-                cfp.addReceiver(dfd.getName());
+                req.addReceiver(dfd.getName());
                 System.out.println(agent.getLocalName() + " sending request to market: " + dfd.getName().getLocalName());
             }
-            cfp.setContent(order);
-            cfp.setConversationId("market-quote");
-            cfp.setReplyByDate(new Date(System.currentTimeMillis() + 5000));
-            agent.send(cfp);
+            req.setContent(order);
+            req.setConversationId("market-query");
+            req.setReplyByDate(new Date(System.currentTimeMillis() + 5000));
+            agent.send(req);
 
-
+            // Collect market responses
+            List<ACLMessage> responses = new ArrayList<>();
             MessageTemplate mt = MessageTemplate.and(
-                    MessageTemplate.MatchConversationId("market-quote"),
-                    MessageTemplate.MatchPerformative(ACLMessage.PROPOSE));
+                    MessageTemplate.MatchConversationId("market-query"),
+                    MessageTemplate.or(
+                            MessageTemplate.MatchPerformative(ACLMessage.INFORM),
+                            MessageTemplate.MatchPerformative(ACLMessage.REFUSE)
+                    )
+            );
+            
             long startTime = System.currentTimeMillis();
-            while (System.currentTimeMillis() - startTime < 5000) {
+            while (System.currentTimeMillis() - startTime < 5000 && responses.size() < results.length) {
                 ACLMessage reply = agent.blockingReceive(mt, 1000);
                 if (reply != null) {
-                    double price = Double.parseDouble(reply.getContent());
-                    if (price < bestPrice) {
-                        bestPrice = price;
-                        System.out.println(agent.getLocalName() + " received quote from " + 
-                            reply.getSender().getLocalName() + ": " + price);
-                    }
+                    responses.add(reply);
+                    System.out.println(agent.getLocalName() + " received market response from " + 
+                        reply.getSender().getLocalName() + ": " + reply.getContent());
                 }
             }
+
+            // Compute iterative aggregated cost
+            return computeIterativeAggregatedCost(order, responses);
+            
         } catch (FIPAException fe) {
             fe.printStackTrace();
         }
-        return bestPrice == Double.MAX_VALUE ? -1 : bestPrice;
+        return -1;
+    }
+    
+    private double computeIterativeAggregatedCost(String order, List<ACLMessage> responses) {
+        // Build market offers from responses
+        List<Map<String, Double>> marketOffers = new ArrayList<>();
+        for (ACLMessage msg : responses) {
+            if (msg.getPerformative() == ACLMessage.INFORM) {
+                Map<String, Double> offer = new HashMap<>();
+                String content = msg.getContent(); // e.g., "milk:6.0,coffee:28.0" or "rice:4.0"
+                if (!content.isEmpty()) {
+                    String[] pairs = content.split(",");
+                    for (String pair : pairs) {
+                        String[] keyValue = pair.split(":");
+                        if (keyValue.length == 2) {
+                            String item = keyValue[0].trim().toLowerCase();
+                            double price = Double.parseDouble(keyValue[1].trim());
+                            offer.put(item, price);
+                        }
+                    }
+                }
+                marketOffers.add(offer);
+            }
+        }
+
+        // Remaining items
+        List<String> remainingItems = new ArrayList<>();
+        String[] requestedItems = order.split(",");
+        for (String item : requestedItems) {
+            remainingItems.add(item.trim().toLowerCase());
+        }
+        double total = 0.0;
+
+        // Iterative selection algorithm from solution-main
+        while (!remainingItems.isEmpty()) {
+            int bestCount = 0;
+            double bestPrice = Double.MAX_VALUE;
+            Map<String, Double> bestOffer = null;
+
+            // Evaluate each market offer
+            for (Map<String, Double> offer : marketOffers) {
+                List<String> available = new ArrayList<>();
+                double priceSum = 0.0;
+                for (String item : remainingItems) {
+                    if (offer.containsKey(item)) {
+                        available.add(item);
+                        priceSum += offer.get(item);
+                    }
+                }
+                int count = available.size();
+                // Choose the offer that supplies the most items; tie-break by lower total price
+                if (count > bestCount || (count == bestCount && count > 0 && priceSum < bestPrice)) {
+                    bestCount = count;
+                    bestPrice = priceSum;
+                    bestOffer = offer;
+                }
+            }
+
+            if (bestCount == 0) {
+                System.out.println(agent.getLocalName() + ": Unable to supply items " + remainingItems);
+                return -1;
+            }
+
+            total += bestPrice;
+            System.out.println(agent.getLocalName() + ": Selected market offer covering " + bestCount
+                    + " items at cost " + bestPrice);
+
+            // Remove items provided by the selected offer
+            Iterator<String> iter = remainingItems.iterator();
+            while (iter.hasNext()) {
+                String item = iter.next();
+                if (bestOffer.containsKey(item)) {
+                    iter.remove();
+                }
+            }
+        }
+        return total;
     }
 }
